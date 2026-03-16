@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>ห้องสมุดออนไลน์ - ค้นหาและจอง</title>
+    <style>
+        body { font-family: 'Kanit', sans-serif; background: #fdfdfd; padding: 20px; }
+        .search-box { margin-bottom: 20px; padding: 10px; width: 100%; max-width: 400px; border-radius: 5px; border: 1px solid #ccc; }
+        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .book-card { border: 1px solid #eee; padding: 15px; border-radius: 10px; background: white; text-align: center; shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .btn-reserve { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .btn-reserve:disabled { background: #ccc; }
+    </style>
+</head>
+<body>
+    <h1>📖 ค้นหาและจองหนังสือออนไลน์</h1>
+    <input type="text" class="search-box" id="searchInput" placeholder="พิมพ์ชื่อหนังสือที่ต้องการ..." onkeyup="filterBooks()">
+    
+    <div class="book-grid" id="bookGrid">
+        </div>
+
+    <script>
+        async function loadBooks() {
+            // ในเครื่องจริงต้องใส่ URL ของ Backend เช่น http://localhost:8080/api/books
+            const res = await fetch('http://localhost:8080/api/books');
+            const books = await res.json();
+            displayBooks(books);
+        }
+
+        function displayBooks(books) {
+            const grid = document.getElementById('bookGrid');
+            grid.innerHTML = books.map(book => `
+                <div class="book-card">
+                    <h3>${book.title}</h3>
+                    <p>สถานะ: <strong>${book.status}</strong></p>
+                    <button class="btn-reserve" 
+                        ${book.status !== 'Available' ? 'disabled' : ''} 
+                        onclick="reserveBook(${book.id})">
+                        ${book.status === 'Available' ? 'จองหนังสือ' : 'ไม่ว่าง'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function reserveBook(id) {
+            alert('ส่งคำขอจองหนังสือ ID: ' + id + ' ไปยัง Backend แล้ว!');
+            // ตรงนี้ต้องเขียน fetch แบบ POST ไปที่ Backend เพื่อบันทึกการจอง
+        }
+
+        loadBooks();
+    <script src="script.js"></script>
+</body>
+</html>
