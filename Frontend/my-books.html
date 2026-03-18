@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการของฉัน - Library System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .book-title { font-size: 1.2rem; font-weight: 500; color: var(--primary-color); margin: 0; }
+        .book-info { font-size: 14px; color: #666; margin: 5px 0 0 0; }
+        .empty-state { text-align: center; padding: 50px; color: #999; border: 1px dashed #ccc; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-flex">
+        <a href="index.html" style="text-decoration: none; color: var(--text-color);">← กลับหน้าแรก</a>
+        <a href="search.html" class="btn btn-primary" style="width: auto; padding: 8px 20px;">+ จองเพิ่ม</a>
+    </div>
+
+    <h1>รายการหนังสือของฉัน</h1>
+    
+    <div id="displayArea"></div>
+</div>
+
+<script>
+    async function render() {
+        const area = document.getElementById('displayArea');
+        try {
+            const response = await fetch('http://localhost:3000/api/bookings');
+            const data = await response.json();
+
+            if (data.length === 0) {
+                area.innerHTML = `
+                    <div class="empty-state">
+                        <p>ยังไม่มีรายการจองหนังสือ</p>
+                        <a href="search.html" style="color: var(--primary-color);">ไปหน้าจองหนังสือที่นี่</a>
+                    </div>`;
+                return;
+            }
+
+            area.innerHTML = data.map(item => `
+                <div class="card">
+                    <div>
+                        <p class="book-title">📖 ${item.book}</p>
+                        <p class="book-info">ผู้ยืม: ${item.user} | วันที่: ${item.date}</p>
+                    </div>
+                    <button class="btn btn-danger" style="width:auto; margin:0;" onclick="returnBook(${item.id})">คืนหนังสือ</button>
+                </div>
+            `).join('');
+        } catch (e) {
+            area.innerHTML = '<p style="color:red; text-align:center;"> เชื่อมต่อ Server ไม่ได้</p>';
+        }
+    }
+
+    async function returnBook(id) {
+        if (confirm('คุณต้องการคืนหนังสือเล่มนี้ใช่หรือไม่?')) {
+            await fetch(`http://localhost:3000/api/bookings/${id}`, { method: 'DELETE' });
+            render(); 
+        }
+    }
+    render();
+</script>
+</body>
+</html>

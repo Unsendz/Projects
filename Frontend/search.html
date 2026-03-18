@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จองหนังสือ - Library System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f4f7f6; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .form-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #666; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-family: inherit; }
+        .btn-submit { width: 100%; padding: 12px; background: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .btn-submit:hover { background: #1a252f; }
+        .back { display: block; text-align: center; margin-top: 15px; color: #999; text-decoration: none; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <h2>จองหนังสือ</h2>
+        <form id="bookForm" onsubmit="saveBooking(event)">
+            <div class="form-group">
+                <label>ชื่อหนังสือ</label>
+                <input type="text" id="bookName" placeholder="ชื่อหนังสือ" required>
+            </div>
+            <div class="form-group">
+                <label>ชื่อผู้ยืม</label>
+                <input type="text" id="userName" placeholder="ชื่อ-นามสกุล" required>
+            </div>
+            <div class="form-group">
+                <label>วันที่รับหนังสือ</label>
+                <input type="date" id="date" required>
+            </div>
+            <button type="submit" class="btn-submit">ยืนยันการจอง</button>
+        </form>
+        <a href="index.html" class="back">← กลับหน้าแรก</a>
+    </div>
+    <script>
+    async function saveBooking(event) {
+    event.preventDefault();
+    
+    const data = {
+        book: document.getElementById('bookName').value,
+        user: document.getElementById('userName').value,
+        date: document.getElementById('date').value
+    };
+
+    try {
+        const response = await fetch('http://localhost:3000/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+    window.location.href = 'success.html'; 
+}
+    } catch (error) {
+        alert('เชื่อมต่อ Backend ไม่ได้! เช็คว่ารัน npm start หรือยัง?');
+    }
+}
+</script>
+</body>
+</html>

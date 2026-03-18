@@ -1,12 +1,9 @@
 version: '3.8'
-
 services:
-  app:
-    image: node:20
-    working_dir: /usr/src/app
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
     volumes:
       - .:/usr/src/app
-    ports:
-      - "8080:8080"
-    command: >
-      sh -c "npm install && node index.js"
+    command: npm start

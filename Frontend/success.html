@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จองสำเร็จ - Library System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        .success-container {
+            text-align: center;
+            padding: 60px 20px;
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .icon-box {
+            font-size: 70px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        /* ปรับแต่งปุ่มให้ดูดีขึ้น */
+        .btn-link {
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .btn-main { background-color: #2c3e50; color: white; }
+        .btn-sub { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; }
+        .btn-link:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="icon-box">✔</div>
+        <h1>จองหนังสือสำเร็จแล้ว!</h1>
+        <p style="color: #666;">ระบบได้รับข้อมูลของคุณแล้ว <br> กรุณามารับหนังสือตามวันที่ระบุไว้</p>
+        
+        <div class="btn-group">
+            <a href="my-books.html" class="btn-link btn-main">ดูรายการของฉัน</a>
+            <a href="index.html" class="btn-link btn-sub">กลับหน้าหลัก</a>
+        </div>
+    </div>
+</body>
+</html>
