@@ -1,0 +1,5 @@
+node_modules/
+Backend/
+Frontend/
+.vscode/
+.DS_Store
