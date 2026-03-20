@@ -1,9 +1,30 @@
-version: '3.8'
 services:
   backend:
     build: .
+    container_name: my_app_backend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
-      - .:/usr/src/app
-    command: npm start
+      - .:/app
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: my_app_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: my_database
+    ports:
+      - "3307:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: my_app_phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db        # ชื่อต้องตรงกับ service db ข้างบน
+      MYSQL_ROOT_PASSWORD: password123
+    depends_on:
+      - db

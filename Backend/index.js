@@ -1,79 +1,62 @@
-const cors = require('cors');
-app.use(cors());              
 const express = require('express');
+const cors = require('cors');
 const app = express();
-const PORT = 8080;
+const db = require('./server');
 
+app.use(cors());
 app.use(express.json());
 
-// ข้อมูลจำลอง (Database)
-let books = [
-    { id: 1, title: "Node.js Guide", status: "Available", borrower: "-", dueDate: "-" },
-    { id: 2, title: "Mastering HTML", status: "Borrowed", borrower: "Somchai", dueDate: "20/03/2026" },
-    { id: 3, title: "Database 101", status: "Reserved", borrower: "Jane", dueDate: "-" }
-];
-
-app.get('/api/books', (req, res) => res.json(books));
-
-app.get('/', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <title>Library System - Backend</title>
-            <style>
-                body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f0f2f5; padding: 40px; color: #333; }
-                .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-                h1 { color: #1a73e8; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-                th { background-color: #f8f9fa; color: #555; }
-                .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
-                .available { background: #e6f4ea; color: #1e7e34; }
-                .borrowed { background: #fef7e0; color: #b05a00; }
-                .reserved { background: #e8f0fe; color: #1967d2; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>📚 ระบบจัดการห้องสมุด (Real-time)</h1>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th><th>ชื่อหนังสือ</th><th>สถานะ</th><th>ผู้ยืม/จอง</th><th>กำหนดส่ง</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        </tbody>
-                </table>
-            </div>
-
-            <script>
-                async function updateTable() {
-                    const res = await fetch('/api/books');
-                    const data = await res.json();
-                    const tbody = document.getElementById('table-body');
-                    tbody.innerHTML = '';
-                    
-                    data.forEach(book => {
-                        const statusClass = book.status.toLowerCase();
-                        tbody.innerHTML += \`
-                            <tr>
-                                <td>\${book.id}</td>
-                                <td><strong>\${book.title}</strong></td>
-                                <td><span class="badge \${statusClass}">\${book.status}</span></td>
-                                <td>\${book.borrower}</td>
-                                <td>\${book.dueDate}</td>
-                            </tr>\`;
-                    });
-                }
-                setInterval(updateTable, 3000); // อัปเดตข้อมูลทุก 3 วินาที
-                updateTable();
-            </script>
-        </body>
-        </html>
-    `);
+// 1. ค้นหาหนังสือ (Real-time Search)
+app.get('/api/books/search', (req, res) => {
+    const query = req.query.q || '';
+    const sql = "SELECT * FROM books WHERE title LIKE ? OR author LIKE ?";
+    db.query(sql, [`%${query}%`, `%${query}%`], (err, results) => {
+        if (err) return res.status(500).json(err);
+        res.json(results);
+    });
 });
 
-app.listen(PORT, () => console.log('✅ Server is running on http://localhost:' + PORT));
+// 2. บันทึกการจอง (Booking)
+app.post('/api/bookings', (req, res) => {
+    const { book, user, date } = req.body;
+    const sql = "INSERT INTO bookings (book_name, user_name, booking_date) VALUES (?, ?, ?)";
+    db.query(sql, [book, user, date], (err, result) => {
+        if (err) return res.status(500).json(err);
+        res.json({ message: "Reserved successfully!" });
+    });
+});
+
+// 3. แจ้งเตือนหนังสือใกล้ครบกำหนดคืน (แจ้งล่วงหน้า 2 วัน)
+app.get('/api/notifications/due-soon', (req, res) => {
+    // ดึงรายชื่อคนที่ต้องคืนหนังสือภายใน 2 วันข้างหน้า
+    const sql = `
+        SELECT borrower_name, due_date, (SELECT title FROM books WHERE id = loans.book_id) as book_title 
+        FROM loans 
+        WHERE status = 'Active' 
+        AND due_date <= DATE_ADD(CURDATE(), INTERVAL 2 DAY)
+    `;
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json(err);
+        res.json(results);
+    });
+});
+
+// 4. ระบบคืนหนังสือ (Update สถานะ)
+app.post('/api/return', (req, res) => {
+    const { loanId, bookId } = req.body;
+    // อัปเดตตาราง loans ว่าคืนแล้ว และอัปเดตตาราง books ว่าว่าง
+    const updateLoan = "UPDATE loans SET status = 'Returned', return_date = CURDATE() WHERE id = ?";
+    const updateBook = "UPDATE books SET status = 'Available' WHERE id = ?";
+    
+    db.query(updateLoan, [loanId], (err) => {
+        if (err) return res.status(500).json(err);
+        db.query(updateBook, [bookId], (err) => {
+            if (err) return res.status(500).json(err);
+            res.json({ message: "Returned successfully!" });
+        });
+    });
+});
+
+app.listen(3000, () => {
+    console.log('🚀 Library System API running on port 3000');
+});

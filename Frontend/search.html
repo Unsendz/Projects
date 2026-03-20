@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>จองหนังสือ - Library System</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -38,8 +36,9 @@
         </form>
         <a href="index.html" class="back">← กลับหน้าแรก</a>
     </div>
+
     <script>
-    async function saveBooking(event) {
+async function saveBooking(event) {
     event.preventDefault();
     
     const data = {
@@ -49,17 +48,24 @@
     };
 
     try {
-        const response = await fetch('http://localhost:3000/api/bookings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
+        
+// ตรวจสอบส่วนนี้ใน search.html ให้แน่ใจว่าเรียกไปที่ 3001
+const response = await fetch('http://localhost:3001/api/bookings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+});
 
         if (response.ok) {
-    window.location.href = 'success.html'; 
-}
+            alert('จองสำเร็จแล้ว!');
+            window.location.href = 'success.html'; 
+        } else {
+            const errorData = await response.json();
+            alert('จองไม่สำเร็จ: ' + (errorData.error || 'เกิดข้อผิดพลาด'));
+        }
     } catch (error) {
-        alert('เชื่อมต่อ Backend ไม่ได้! เช็คว่ารัน npm start หรือยัง?');
+        console.error("Error:", error);
+        alert('เชื่อมต่อ Backend ไม่ได้! เช็กว่า Docker รันอยู่พอร์ต 3001 หรือยัง?');
     }
 }
 </script>
