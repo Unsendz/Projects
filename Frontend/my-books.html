@@ -56,8 +56,8 @@
             area.innerHTML = data.map(item => `
                 <div class="card">
                     <div>
-                        <p class="book-title">📖 ${item.book_name}</p>
-                        <p class="book-info">ผู้ยืม: ${item.user_name} | วันที่: ${new Date(item.booking_date).toLocaleDateString('th-TH')}</p>
+                        <p class="book-title">  ${item.book_name}</p>
+                        <p class="book-info">ผู้ยืม: ${item.user_name} | วันที่รับหนังสือ: ${new Date(item.booking_date).toLocaleDateString('th-TH')}</p>
                     </div>
                     <button class="btn" style="width:auto; margin:0; background-color:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;" 
                         onclick="returnBook(${item.id})">คืนหนังสือ</button>
