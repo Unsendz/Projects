@@ -38,9 +38,9 @@
     </div>
 
     <script>
-async function saveBooking(event) {
-    event.preventDefault();
-    
+   async function saveBooking(event) {
+    event.preventDefault(); 
+
     const data = {
         book: document.getElementById('bookName').value,
         user: document.getElementById('userName').value,
@@ -48,24 +48,21 @@ async function saveBooking(event) {
     };
 
     try {
-        
-// ตรวจสอบส่วนนี้ใน search.html ให้แน่ใจว่าเรียกไปที่ 3001
-const response = await fetch('http://localhost:3001/api/bookings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-});
+        const response = await fetch('http://localhost:3001/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
 
         if (response.ok) {
-            alert('จองสำเร็จแล้ว!');
             window.location.href = 'success.html'; 
         } else {
             const errorData = await response.json();
-            alert('จองไม่สำเร็จ: ' + (errorData.error || 'เกิดข้อผิดพลาด'));
+            console.error("Server Error:", errorData);
+            alert('เกิดข้อผิดพลาดในการจอง');
         }
     } catch (error) {
         console.error("Error:", error);
-        alert('เชื่อมต่อ Backend ไม่ได้! เช็กว่า Docker รันอยู่พอร์ต 3001 หรือยัง?');
     }
 }
 </script>

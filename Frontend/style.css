@@ -2,18 +2,18 @@
 { background-color: red !important; }
 @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
 
-/* --- ส่วนที่เปลี่ยนสี (แก้ไขตรงนี้ได้เลย) --- */
+
 :root {
-    --primary-color: #2c3e50;    /* เปลี่ยนเป็นน้ำเงินเข้ม */
+    --primary-color: #2c3e50;    
     --secondary-color: #f8f9fa;
-    --success-color: #27ae60;    /* เขียวแบบสะอาด */
+    --success-color: #27ae60;    
     --warning-color: #f39c12;
     --danger-color: #e74c3c;
     --text-color: #2c3e50;
     --border-color: #dee2e6;
 }
 
-/* --- โครงสร้างหลัก (ใช้ตัวแปรสีด้านบน) --- */
+
 body {
     font-family: 'Kanit', sans-serif;
     background-color: #f0f2f5;
@@ -38,7 +38,6 @@ h1 {
     font-weight: 500;
 }
 
-/* ส่วนฟอร์มและปุ่ม */
 .form-group {
     margin-bottom: 20px;
 }
@@ -87,7 +86,6 @@ input:focus {
     background-color: #1a252f; 
 }
 
-/* ตารางแสดงผลในหน้า my-book.html */
 .card {
     border: 1px solid var(--border-color);
     padding: 20px;

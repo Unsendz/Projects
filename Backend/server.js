@@ -1,9 +1,9 @@
 const mysql = require('mysql2');
 
 const db = mysql.createConnection({
-    host: 'db', // ต้องเป็นชื่อ service ใน docker-compose
-    user: 'user',
-    password: 'password',
+    host: 'db',
+    user: 'user',       
+    password: 'password', 
     database: 'my_database'
 });
 

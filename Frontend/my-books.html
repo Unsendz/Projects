@@ -41,14 +41,14 @@
     async function render() {
         const area = document.getElementById('displayArea');
         try {
-            const response = await fetch('http://localhost:3000/api/bookings');
+            const response = await fetch('http://localhost:3001/api/bookings');
             const data = await response.json();
 
             if (data.length === 0) {
                 area.innerHTML = `
                     <div class="empty-state">
                         <p>ยังไม่มีรายการจองหนังสือ</p>
-                        <a href="search.html" style="color: var(--primary-color);">ไปหน้าจองหนังสือที่นี่</a>
+                        <a href="search.html" style="color: #2c3e50;">ไปหน้าจองหนังสือที่นี่</a>
                     </div>`;
                 return;
             }
@@ -56,23 +56,33 @@
             area.innerHTML = data.map(item => `
                 <div class="card">
                     <div>
-                        <p class="book-title">📖 ${item.book}</p>
-                        <p class="book-info">ผู้ยืม: ${item.user} | วันที่: ${item.date}</p>
+                        <p class="book-title">📖 ${item.book_name}</p>
+                        <p class="book-info">ผู้ยืม: ${item.user_name} | วันที่: ${new Date(item.booking_date).toLocaleDateString('th-TH')}</p>
                     </div>
-                    <button class="btn btn-danger" style="width:auto; margin:0;" onclick="returnBook(${item.id})">คืนหนังสือ</button>
+                    <button class="btn" style="width:auto; margin:0; background-color:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;" 
+                        onclick="returnBook(${item.id})">คืนหนังสือ</button>
                 </div>
             `).join('');
         } catch (e) {
-            area.innerHTML = '<p style="color:red; text-align:center;"> เชื่อมต่อ Server ไม่ได้</p>';
+            area.innerHTML = '<p style="color:red; text-align:center;"> เชื่อมต่อ Server ไม่ได้ (ลองเช็ค Docker พอร์ต 3001)</p>';
         }
     }
 
     async function returnBook(id) {
         if (confirm('คุณต้องการคืนหนังสือเล่มนี้ใช่หรือไม่?')) {
-            await fetch(`http://localhost:3000/api/bookings/${id}`, { method: 'DELETE' });
-            render(); 
+            try {
+                const response = await fetch(`http://localhost:3001/api/bookings/${id}`, { 
+                    method: 'DELETE' 
+                });
+                if (response.ok) {
+                    render(); 
+                }
+            } catch (e) {
+                alert('ไม่สามารถลบข้อมูลได้');
+            }
         }
     }
+    
     render();
 </script>
 </body>

@@ -1,62 +1,47 @@
 const express = require('express');
+const mysql = require('mysql2');
 const cors = require('cors');
 const app = express();
-const db = require('./server');
 
 app.use(cors());
 app.use(express.json());
 
-// 1. ค้นหาหนังสือ (Real-time Search)
-app.get('/api/books/search', (req, res) => {
-    const query = req.query.q || '';
-    const sql = "SELECT * FROM books WHERE title LIKE ? OR author LIKE ?";
-    db.query(sql, [`%${query}%`, `%${query}%`], (err, results) => {
-        if (err) return res.status(500).json(err);
-        res.json(results);
-    });
+const db = mysql.createConnection({
+    host: 'db',
+    user: 'root',
+    password: 'password123',
+    database: 'my_database'
 });
 
-// 2. บันทึกการจอง (Booking)
+db.connect(err => {
+    if (err) console.error('DB Connection Error:', err);
+    else console.log('Connected to MySQL Database');
+});
+
 app.post('/api/bookings', (req, res) => {
     const { book, user, date } = req.body;
     const sql = "INSERT INTO bookings (book_name, user_name, booking_date) VALUES (?, ?, ?)";
     db.query(sql, [book, user, date], (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json({ message: "Reserved successfully!" });
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(200).json({ message: 'Success' });
     });
 });
 
-// 3. แจ้งเตือนหนังสือใกล้ครบกำหนดคืน (แจ้งล่วงหน้า 2 วัน)
-app.get('/api/notifications/due-soon', (req, res) => {
-    // ดึงรายชื่อคนที่ต้องคืนหนังสือภายใน 2 วันข้างหน้า
-    const sql = `
-        SELECT borrower_name, due_date, (SELECT title FROM books WHERE id = loans.book_id) as book_title 
-        FROM loans 
-        WHERE status = 'Active' 
-        AND due_date <= DATE_ADD(CURDATE(), INTERVAL 2 DAY)
-    `;
+app.get('/api/bookings', (req, res) => {
+    const sql = "SELECT * FROM bookings ORDER BY id DESC";
     db.query(sql, (err, results) => {
-        if (err) return res.status(500).json(err);
-        res.json(results);
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(200).json(results);
     });
 });
 
-// 4. ระบบคืนหนังสือ (Update สถานะ)
-app.post('/api/return', (req, res) => {
-    const { loanId, bookId } = req.body;
-    // อัปเดตตาราง loans ว่าคืนแล้ว และอัปเดตตาราง books ว่าว่าง
-    const updateLoan = "UPDATE loans SET status = 'Returned', return_date = CURDATE() WHERE id = ?";
-    const updateBook = "UPDATE books SET status = 'Available' WHERE id = ?";
-    
-    db.query(updateLoan, [loanId], (err) => {
-        if (err) return res.status(500).json(err);
-        db.query(updateBook, [bookId], (err) => {
-            if (err) return res.status(500).json(err);
-            res.json({ message: "Returned successfully!" });
-        });
+app.delete('/api/bookings/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = "DELETE FROM bookings WHERE id = ?";
+    db.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.status(200).json({ message: 'Deleted successfully' });
     });
 });
 
-app.listen(3000, () => {
-    console.log('🚀 Library System API running on port 3000');
-});
+app.listen(3000, () => console.log('Backend running on port 3000 (Docker mapped to 3001)'));

@@ -1,9 +1,7 @@
 // script.js
 
-// 1. กำหนด URL ของ Backend API (พอร์ต 3001 คือที่ Docker แมพออกมา)
 const API_URL = 'http://localhost:3001/api/books';
 
-// 2. ฟังก์ชันดึงข้อมูลจาก Backend
 async function fetchBooks() {
     try {
         const response = await fetch(API_URL);
